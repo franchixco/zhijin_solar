@@ -5,7 +5,5 @@
   "domains": ["zhijin_solar"],
   "homeassistant": "2024.1.0",
   "iot_class": "local_polling",
-  "render_readme": true,
-  "zip_release": true,
-  "filename": "zhijin_solar.zip"
+  "render_readme": true
 }
