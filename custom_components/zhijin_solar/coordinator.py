@@ -23,10 +23,8 @@ from .const import (
     NUS_WRITE_CHAR_UUID,
 )
 from .protocol import (
-    DEVICE_TYPE_NAMES,
     DeviceType,
     FuncCode,
-    StandardDetail,
     cmd_read_bingwang_config,
     cmd_read_bingwang_main,
     cmd_read_liwang_config,
@@ -34,7 +32,13 @@ from .protocol import (
     cmd_read_module,
     cmd_read_standard_detail,
     cmd_read_standard_main,
-    parse_response,
+    parse_bingwang_config,
+    parse_bingwang_main,
+    parse_liwang_main,
+    parse_module_info,
+    parse_standard_detail,
+    parse_standard_main,
+    verify_crc,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -226,40 +230,36 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         result: dict[str, Any] = {"address": self._address}
 
         try:
-            # Always read MODULE_INFO first to detect/confirm device type
+            # 1) MODULE INFO - detect device type
             response = await self._send_command(cmd_read_module())
             if response:
-                _LOGGER.debug(
-                    "MODULE response raw: %s (len=%d)",
-                    response.hex(),
-                    len(response),
-                )
-                parsed = parse_response(response)
-                if "data" in parsed:
-                    info = parsed["data"]
-                    self._device_type = info.device_type_raw
-                    self._device_type_name = info.device_type_name
-                    result["module_info"] = {
-                        "device_type": info.device_type_raw,
-                        "device_type_name": info.device_type_name,
-                        "firmware_version": info.firmware_version,
-                        "firmware_string": self._dis_info.get(
-                            "firmware", str(info.firmware_version)
-                        ),
-                    }
-                elif len(response) >= 3:
-                    self._device_type = response[0]
-                    self._device_type_name = DEVICE_TYPE_NAMES.get(
-                        DeviceType(response[0]), f"Unknown({response[0]})"
-                    )
-                    _LOGGER.info(
-                        "MODULE parse fallback: using frame[0]=%s as device_type",
-                        response[0],
-                    )
+                _LOGGER.debug("MODULE response: %s (len=%d)", response.hex(), len(response))
+                if verify_crc(response):
+                    try:
+                        info = parse_module_info(response)
+                        self._device_type = info.device_type_raw
+                        self._device_type_name = info.device_type_name
+                        result["module_info"] = {
+                            "device_type": info.device_type_raw,
+                            "device_type_name": info.device_type_name,
+                            "firmware_version": info.firmware_version,
+                            "firmware_string": self._dis_info.get(
+                                "firmware", str(info.firmware_version)
+                            ),
+                        }
+                        _LOGGER.info(
+                            "Device type: %s (%s)", info.device_type_raw, info.device_type_name
+                        )
+                    except (IndexError, Exception) as err:
+                        _LOGGER.warning(
+                            "Failed to parse module_info: %s (raw: %s)", err, response.hex()
+                        )
+                else:
+                    _LOGGER.warning("MODULE response CRC failed: %s", response.hex())
 
             await asyncio.sleep(0.3)
 
-            # Read device-type-specific data
+            # 2) DATA READS - route by known device_type
             if self._device_type == DeviceType.STANDARD:
                 await self._read_standard(result)
             elif self._device_type == DeviceType.BINGWANG:
@@ -268,8 +268,7 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 await self._read_liwang(result)
             else:
                 _LOGGER.warning(
-                    "Unknown device type %s, attempting standard reads",
-                    self._device_type,
+                    "Unknown device type %s, trying standard reads", self._device_type
                 )
                 await self._read_standard(result)
 
@@ -283,101 +282,170 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Read Standard controller main + detail data."""
         response = await self._send_command(cmd_read_standard_main())
         if response:
-            parsed = parse_response(response)
-            if "data" in parsed:
-                d = parsed["data"]
-                result["standard"] = {
-                    "battery_voltage": d.battery_voltage,
-                    "charging_current": d.charging_current,
-                    "discharge_current": d.discharge_current,
-                    "temperature": d.temperature,
-                    "solar_status": d.solar_status,
-                    "total_power": d.total_power,
-                }
+            _LOGGER.debug(
+                "STANDARD_MAIN response: %s (len=%d)", response.hex(), len(response)
+            )
+            if verify_crc(response):
+                try:
+                    d = parse_standard_main(response)
+                    result["standard"] = {
+                        "battery_voltage": d.battery_voltage,
+                        "charging_current": d.charging_current,
+                        "discharge_current": d.discharge_current,
+                        "temperature": d.temperature,
+                        "solar_status": d.solar_status,
+                        "total_power": d.total_power,
+                    }
+                    _LOGGER.debug(
+                        "Standard main parsed OK: V=%.1f I=%.1f T=%.1f",
+                        d.battery_voltage,
+                        d.charging_current,
+                        d.temperature,
+                    )
+                except (IndexError, Exception) as err:
+                    _LOGGER.warning(
+                        "Failed to parse standard_main: %s (raw: %s)", err, response.hex()
+                    )
+            else:
+                _LOGGER.warning("STANDARD_MAIN CRC failed: %s", response.hex())
 
         await asyncio.sleep(0.3)
 
         response = await self._send_command(cmd_read_standard_detail())
         if response:
-            parsed = parse_response(response)
-            if "data" in parsed and isinstance(parsed["data"], StandardDetail):
-                d = parsed["data"]
-                result["settings"] = {
-                    "battery_type": d.battery_type,
-                    "full_voltage": d.full_voltage,
-                    "cutoff_voltage": d.cutoff_voltage,
-                    "output_mode": d.output_mode,
-                    "load_output": d.load_output,
-                    "voltage_monitor": d.voltage_monitor,
-                    "restore_discharge_voltage": d.restore_discharge_voltage,
-                    "timing_hour": d.timing_hour,
-                    "timing_min": d.timing_min,
-                }
+            _LOGGER.debug(
+                "STANDARD_DETAIL response: %s (len=%d)", response.hex(), len(response)
+            )
+            if verify_crc(response):
+                try:
+                    d = parse_standard_detail(response)
+                    result["settings"] = {
+                        "battery_type": d.battery_type,
+                        "full_voltage": d.full_voltage,
+                        "cutoff_voltage": d.cutoff_voltage,
+                        "output_mode": d.output_mode,
+                        "load_output": d.load_output,
+                        "voltage_monitor": d.voltage_monitor,
+                        "restore_discharge_voltage": d.restore_discharge_voltage,
+                        "timing_hour": d.timing_hour,
+                        "timing_min": d.timing_min,
+                    }
+                    _LOGGER.debug(
+                        "Standard detail parsed OK: battery_type=%d fullV=%.1f cutV=%.1f",
+                        d.battery_type,
+                        d.full_voltage,
+                        d.cutoff_voltage,
+                    )
+                except (IndexError, Exception) as err:
+                    _LOGGER.warning(
+                        "Failed to parse standard_detail: %s (raw: %s)", err, response.hex()
+                    )
             else:
-                result["standard_detail_raw"] = parsed
+                _LOGGER.warning("STANDARD_DETAIL CRC failed: %s", response.hex())
 
     async def _read_bingwang(self, result: dict[str, Any]) -> None:
         """Read Bingwang controller main + config data."""
         response = await self._send_command(cmd_read_bingwang_main())
         if response:
-            parsed = parse_response(response)
-            if "data" in parsed:
-                d = parsed["data"]
-                result["bingwang"] = {
-                    "pv_voltage": d.pv_voltage,
-                    "pv_current": d.pv_current,
-                    "mains_voltage": d.mains_voltage,
-                    "mains_frequency": d.mains_frequency,
-                    "realtime_power": d.realtime_power,
-                    "accumulated_power": d.accumulated_power,
-                    "temperature": d.temperature,
-                    "warnings": d.warnings,
-                }
+            _LOGGER.debug(
+                "BINGWANG_MAIN response: %s (len=%d)", response.hex(), len(response)
+            )
+            if verify_crc(response):
+                try:
+                    d = parse_bingwang_main(response)
+                    result["bingwang"] = {
+                        "pv_voltage": d.pv_voltage,
+                        "pv_current": d.pv_current,
+                        "mains_voltage": d.mains_voltage,
+                        "mains_frequency": d.mains_frequency,
+                        "realtime_power": d.realtime_power,
+                        "accumulated_power": d.accumulated_power,
+                        "temperature": d.temperature,
+                        "warnings": d.warnings,
+                    }
+                    _LOGGER.debug(
+                        "Bingwang main parsed OK: PV=%.1fV temp=%.1f", d.pv_voltage, d.temperature
+                    )
+                except (IndexError, Exception) as err:
+                    _LOGGER.warning(
+                        "Failed to parse bingwang_main: %s (raw: %s)", err, response.hex()
+                    )
+            else:
+                _LOGGER.warning("BINGWANG_MAIN CRC failed: %s", response.hex())
 
         await asyncio.sleep(0.3)
 
         response = await self._send_command(cmd_read_bingwang_config())
         if response:
-            parsed = parse_response(response)
-            if "data" in parsed:
-                d = parsed["data"]
-                result["bingwang_config"] = {
-                    "max_power": d.max_power,
-                    "interval_generation_switch": d.interval_generation_switch,
-                }
+            _LOGGER.debug(
+                "BINGWANG_CONFIG response: %s (len=%d)", response.hex(), len(response)
+            )
+            if verify_crc(response):
+                try:
+                    d = parse_bingwang_config(response)
+                    result["bingwang_config"] = {
+                        "max_power": d.max_power,
+                        "interval_generation_switch": d.interval_generation_switch,
+                    }
+                    _LOGGER.debug("Bingwang config parsed OK: max_power=%d", d.max_power)
+                except (IndexError, Exception) as err:
+                    _LOGGER.warning(
+                        "Failed to parse bingwang_config: %s (raw: %s)", err, response.hex()
+                    )
+            else:
+                _LOGGER.warning("BINGWANG_CONFIG CRC failed: %s", response.hex())
 
     async def _read_liwang(self, result: dict[str, Any]) -> None:
         """Read Liwang controller main + config data."""
         response = await self._send_command(cmd_read_liwang_main())
         if response:
-            parsed = parse_response(response)
-            if "data" in parsed:
-                d = parsed["data"]
-                result["liwang"] = {
-                    "battery_voltage": d.battery_voltage,
-                    "dc_current": d.dc_current,
-                    "output_voltage": d.output_voltage,
-                    "output_frequency": d.output_frequency,
-                    "realtime_power": d.realtime_power,
-                    "accumulated_power": d.accumulated_power,
-                    "temperature": d.temperature,
-                }
+            _LOGGER.debug(
+                "LIWANG_MAIN response: %s (len=%d)", response.hex(), len(response)
+            )
+            if verify_crc(response):
+                try:
+                    d = parse_liwang_main(response)
+                    result["liwang"] = {
+                        "battery_voltage": d.battery_voltage,
+                        "dc_current": d.dc_current,
+                        "output_voltage": d.output_voltage,
+                        "output_frequency": d.output_frequency,
+                        "realtime_power": d.realtime_power,
+                        "accumulated_power": d.accumulated_power,
+                        "temperature": d.temperature,
+                    }
+                    _LOGGER.debug(
+                        "Liwang main parsed OK: V=%.1f temp=%.1f", d.battery_voltage, d.temperature
+                    )
+                except (IndexError, Exception) as err:
+                    _LOGGER.warning(
+                        "Failed to parse liwang_main: %s (raw: %s)", err, response.hex()
+                    )
+            else:
+                _LOGGER.warning("LIWANG_MAIN CRC failed: %s", response.hex())
 
         await asyncio.sleep(0.3)
 
         response = await self._send_command(cmd_read_liwang_config())
         if response:
-            parsed = parse_response(response)
-            result["liwang_config_raw"] = parsed
+            _LOGGER.debug(
+                "LIWANG_CONFIG response: %s (len=%d)", response.hex(), len(response)
+            )
+            if verify_crc(response):
+                _LOGGER.debug("Liwang config CRC OK (no parser yet)")
+                result["liwang_config_raw"] = response.hex()
+            else:
+                _LOGGER.warning("LIWANG_CONFIG CRC failed: %s", response.hex())
 
     async def async_write_command(
         self, device_type: int, payload: list[int]
     ) -> dict[str, Any] | None:
         """Send a WRITE command and return parsed response."""
-        from .protocol import build_frame, FuncCode
+        from .protocol import build_frame, parse_response
 
         cmd = build_frame(device_type, FuncCode.WRITE, payload)
         response = await self._send_command(cmd)
         if response:
+            _LOGGER.debug("WRITE response: %s (len=%d)", response.hex(), len(response))
             return parse_response(response)
         return None
