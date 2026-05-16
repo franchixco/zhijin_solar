@@ -8,7 +8,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/franchixco/zhijin_solar/issues",
   "requirements": [],
-  "version": "0.1.2",
+  "version": "0.1.3",
   "bluetooth": [
     {
       "service_uuid": "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"

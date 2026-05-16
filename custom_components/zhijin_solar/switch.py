@@ -20,6 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ZhiJinSwitchEntity(CoordinatorEntity[ZhiJinCoordinator], SwitchEntity):
+    _attr_has_entity_name = True
     def __init__(
         self,
         coordinator: ZhiJinCoordinator,

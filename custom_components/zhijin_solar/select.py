@@ -44,6 +44,7 @@ VOLTAGE_MONITOR_OPTIONS = {
 
 
 class ZhiJinSelectEntity(CoordinatorEntity[ZhiJinCoordinator], SelectEntity):
+    _attr_has_entity_name = True
     def __init__(
         self,
         coordinator: ZhiJinCoordinator,

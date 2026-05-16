@@ -23,6 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class ZhiJinNumberEntity(CoordinatorEntity[ZhiJinCoordinator], NumberEntity):
+    _attr_has_entity_name = True
     def __init__(
         self,
         coordinator: ZhiJinCoordinator,

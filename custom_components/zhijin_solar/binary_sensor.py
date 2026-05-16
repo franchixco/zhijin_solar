@@ -40,6 +40,7 @@ WARNING_DESCRIPTIONS = tuple(
 
 
 class ZhiJinWarningEntity(CoordinatorEntity[ZhiJinCoordinator], BinarySensorEntity):
+    _attr_has_entity_name = True
     entity_description: ZhiJinWarningEntityDescription
 
     def __init__(

@@ -268,6 +268,7 @@ ALL_SENSORS = STANDARD_SENSORS + BINGWANG_SENSORS + LIWANG_SENSORS + COMMON_SENS
 
 
 class ZhiJinSensorEntity(CoordinatorEntity[ZhiJinCoordinator], SensorEntity):
+    _attr_has_entity_name = True
     entity_description: ZhiJinSensorEntityDescription
 
     def __init__(
