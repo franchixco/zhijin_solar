@@ -1,0 +1,33 @@
+# Secrets & deploy scripts
+ha_deploy_check.sh
+
+# IPA (proprietary)
+*.ipa
+
+# BLE debug tools (local only)
+ble-debug/
+
+# Tarballs
+*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# UV
+uv.lock

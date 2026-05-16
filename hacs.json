@@ -1,0 +1,11 @@
+{
+  "name": "ZhiJin Solar Controller",
+  "content_in_root": false,
+  "country": [],
+  "domains": ["zhijin_solar"],
+  "homeassistant": "2024.1.0",
+  "iot_class": "local_polling",
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "zhijin_solar.zip"
+}

@@ -1,0 +1,79 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ZhiJin Solar Controller",
+        "description": "Select your ZhiJin solar controller from discovered BLE devices, or enter the Bluetooth address manually.",
+        "data": {
+          "address": "Device address"
+        }
+      },
+      "configure": {
+        "title": "Configuration",
+        "description": "Configure polling interval for the controller.",
+        "data": {
+          "poll_interval": "Poll interval (seconds)"
+        }
+      },
+      "bluetooth": {
+        "title": "ZhiJin Solar Controller",
+        "description": "ZhiJin solar controller discovered via Bluetooth."
+      }
+    },
+    "abort": {
+      "no_devices_found": "No ZhiJin controllers found nearby. Ensure the controller is powered on and within Bluetooth range."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_voltage": { "name": "Battery voltage" },
+      "charging_current": { "name": "Charging current" },
+      "discharge_current": { "name": "Discharge current" },
+      "temperature": { "name": "Temperature" },
+      "total_power": { "name": "Total energy generated" },
+      "pv_voltage": { "name": "PV voltage" },
+      "pv_current": { "name": "PV current" },
+      "mains_voltage": { "name": "Mains voltage" },
+      "mains_frequency": { "name": "Mains frequency" },
+      "realtime_power": { "name": "Real-time power" },
+      "accumulated_power": { "name": "Accumulated energy" },
+      "dc_current": { "name": "DC current" },
+      "output_voltage": { "name": "Output voltage" },
+      "output_frequency": { "name": "Output frequency" },
+      "firmware_version": { "name": "Firmware version" },
+      "battery_soc": { "name": "Battery SOC" }
+    },
+    "binary_sensor": {
+      "warning_battery_undervoltage": { "name": "Battery undervoltage" },
+      "warning_battery_overvoltage": { "name": "Battery overvoltage" },
+      "warning_overheat_protection": { "name": "Overheat protection" },
+      "warning_overload_protection": { "name": "Overload protection" },
+      "warning_dc_undervoltage": { "name": "DC undervoltage" },
+      "warning_dc_overvoltage": { "name": "DC overvoltage" },
+      "warning_ac_undervoltage": { "name": "AC undervoltage" },
+      "warning_ac_overvoltage": { "name": "AC overvoltage" },
+      "warning_under_frequency": { "name": "Under frequency" },
+      "warning_over_frequency": { "name": "Over frequency" },
+      "warning_islanding_protection": { "name": "Islanding protection" },
+      "warning_pv_undervoltage": { "name": "PV undervoltage" },
+      "warning_pv_overvoltage": { "name": "PV overvoltage" },
+      "warning_grid_undervoltage": { "name": "Grid undervoltage" },
+      "warning_grid_overvoltage": { "name": "Grid overvoltage" }
+    },
+    "select": {
+      "battery_type": { "name": "Battery type" },
+      "output_mode": { "name": "Output mode" },
+      "voltage_monitor": { "name": "Voltage monitor mode" }
+    },
+    "number": {
+      "full_voltage": { "name": "Full voltage" },
+      "cutoff_voltage": { "name": "Cutoff voltage" },
+      "restore_discharge_voltage": { "name": "Restore discharge voltage" },
+      "max_power": { "name": "Max power" }
+    },
+    "switch": {
+      "load_output": { "name": "Load output" },
+      "inverter_switch": { "name": "Inverter switch" }
+    }
+  }
+}
