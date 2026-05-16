@@ -181,12 +181,32 @@ class ControllerReading:
 # --- Response parsers ---
 
 def parse_module_info(frame: bytes) -> ModuleInfo:
-    device_type_raw = frame[0]  # First byte IS the device type
+    """Parse MODULE info response.
+
+    Two response formats exist:
+    - Short (8 bytes): frame[0] IS the device type directly.
+    - Full (25+ bytes): frame[0] echoes the MODULE query (0x00);
+      the actual device type lives at data[4] = frame[7].
+    """
+    byte_count = frame[2] if len(frame) > 2 else 0
+
+    # Full response has byte_count >= 5 → real device_type at frame[7]
+    if byte_count >= 5 and len(frame) > 7:
+        device_type_raw = frame[7]
+    else:
+        device_type_raw = frame[0]
+
     try:
         name = DEVICE_TYPE_NAMES[DeviceType(device_type_raw)]
     except (ValueError, KeyError):
         name = f"Unknown({device_type_raw})"
-    firmware = u16_be(frame, 7) if len(frame) > 8 else 0
+
+    # Firmware: data[2:4] (frame[5:7]) for full responses, else unavailable
+    if byte_count >= 5 and len(frame) > 6:
+        firmware = u16_be(frame, 5)
+    else:
+        firmware = 0
+
     return ModuleInfo(
         device_type_raw=device_type_raw,
         device_type_name=name,
