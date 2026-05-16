@@ -94,6 +94,10 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Disconnect BLE client on integration unload."""
         if self._client and self._client.is_connected:
             try:
+                await self._client.stop_notify(self._notify_char)
+            except BleakError:
+                pass
+            try:
                 await self._client.disconnect()
             except BleakError:
                 _LOGGER.debug("Error disconnecting during shutdown")
@@ -106,6 +110,11 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         # Clean up stale client before reconnecting
         if self._client is not None:
+            try:
+                if self._client.is_connected:
+                    await self._client.stop_notify(self._notify_char)
+            except BleakError:
+                pass
             try:
                 await self._client.disconnect()
             except BleakError:
@@ -128,6 +137,12 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         self._write_char = char.uuid
                     if "notify" in props:
                         self._notify_char = char.uuid
+
+        # Clean up any stale notification subscription
+        try:
+            await self._client.stop_notify(self._notify_char)
+        except Exception:
+            pass
 
         await self._client.start_notify(
             self._notify_char, self._notification_handler
@@ -214,6 +229,11 @@ class ZhiJinCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Always read MODULE_INFO first to detect/confirm device type
             response = await self._send_command(cmd_read_module())
             if response:
+                _LOGGER.debug(
+                    "MODULE response raw: %s (len=%d)",
+                    response.hex(),
+                    len(response),
+                )
                 parsed = parse_response(response)
                 if "data" in parsed:
                     info = parsed["data"]

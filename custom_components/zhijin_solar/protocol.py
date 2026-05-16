@@ -181,14 +181,15 @@ class ControllerReading:
 # --- Response parsers ---
 
 def parse_module_info(frame: bytes) -> ModuleInfo:
-    if len(frame) >= 6:
-        raw = u16_be(frame, 4)
-    else:
-        raw = frame[0]
+    device_type_raw = frame[0]  # First byte IS the device type
+    try:
+        name = DEVICE_TYPE_NAMES[DeviceType(device_type_raw)]
+    except (ValueError, KeyError):
+        name = f"Unknown({device_type_raw})"
     firmware = u16_be(frame, 7) if len(frame) > 8 else 0
     return ModuleInfo(
-        device_type_raw=raw,
-        device_type_name=DEVICE_TYPE_NAMES.get(DeviceType(raw), f"Unknown({raw})"),
+        device_type_raw=device_type_raw,
+        device_type_name=name,
         firmware_version=firmware,
     )
 
