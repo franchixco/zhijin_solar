@@ -80,6 +80,7 @@ async def async_setup_entry(
                 coordinator,
                 SwitchEntityDescription(
                     key="load_output",
+                    name="Load output",
                     translation_key="load_output",
                 ),
                 on_payload=[0x10, 0x07, 0x00, 0x01, 0x02, 0x00, 0x01],
@@ -95,6 +96,7 @@ async def async_setup_entry(
                 coordinator,
                 SwitchEntityDescription(
                     key="inverter_switch",
+                    name="Inverter switch",
                     translation_key="inverter_switch",
                 ),
                 on_payload=[2, 1, 0, 0, 0, 1],
@@ -109,6 +111,7 @@ async def async_setup_entry(
                 coordinator,
                 SwitchEntityDescription(
                     key="inverter_switch",
+                    name="Inverter switch",
                     translation_key="inverter_switch",
                 ),
                 on_payload=[2, 1, 0, 0, 0, 1],

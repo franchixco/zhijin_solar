@@ -27,9 +27,28 @@ class ZhiJinWarningEntityDescription(BinarySensorEntityDescription):
     device_type_filter: set[int]
 
 
+WARNING_FRIENDLY_NAMES = {
+    "battery_undervoltage": "Battery undervoltage",
+    "battery_overvoltage": "Battery overvoltage",
+    "overheat_protection": "Overheat protection",
+    "overload_protection": "Overload protection",
+    "dc_undervoltage": "DC undervoltage",
+    "dc_overvoltage": "DC overvoltage",
+    "ac_undervoltage": "AC undervoltage",
+    "ac_overvoltage": "AC overvoltage",
+    "under_frequency": "Under frequency",
+    "over_frequency": "Over frequency",
+    "islanding_protection": "Islanding protection",
+    "pv_undervoltage": "PV undervoltage",
+    "pv_overvoltage": "PV overvoltage",
+    "grid_undervoltage": "Grid undervoltage",
+    "grid_overvoltage": "Grid overvoltage",
+}
+
 WARNING_DESCRIPTIONS = tuple(
     ZhiJinWarningEntityDescription(
         key=f"warning_{name}",
+        name=WARNING_FRIENDLY_NAMES.get(name, name),
         translation_key=f"warning_{name}",
         warning_key=name,
         device_class=None,

@@ -75,6 +75,7 @@ async def async_setup_entry(
                 coordinator,
                 NumberEntityDescription(
                     key="full_voltage",
+                    name="Full voltage",
                     translation_key="full_voltage",
                     native_min_value=0,
                     native_max_value=60,
@@ -89,6 +90,7 @@ async def async_setup_entry(
                 coordinator,
                 NumberEntityDescription(
                     key="cutoff_voltage",
+                    name="Cutoff voltage",
                     translation_key="cutoff_voltage",
                     native_min_value=0,
                     native_max_value=60,
@@ -103,6 +105,7 @@ async def async_setup_entry(
                 coordinator,
                 NumberEntityDescription(
                     key="restore_discharge_voltage",
+                    name="Restore discharge voltage",
                     translation_key="restore_discharge_voltage",
                     native_min_value=0,
                     native_max_value=60,
@@ -121,6 +124,7 @@ async def async_setup_entry(
                 coordinator,
                 NumberEntityDescription(
                     key="max_power",
+                    name="Max power",
                     translation_key="max_power",
                     native_min_value=0,
                     native_max_value=10000,

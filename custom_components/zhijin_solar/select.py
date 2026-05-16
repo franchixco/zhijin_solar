@@ -106,6 +106,7 @@ async def async_setup_entry(
                 coordinator,
                 SelectEntityDescription(
                     key="battery_type",
+                    name="Battery type",
                     translation_key="battery_type",
                 ),
                 BATTERY_TYPE_OPTIONS,
@@ -119,6 +120,7 @@ async def async_setup_entry(
                 coordinator,
                 SelectEntityDescription(
                     key="output_mode",
+                    name="Output mode",
                     translation_key="output_mode",
                 ),
                 OUTPUT_MODE_OPTIONS,
@@ -132,6 +134,7 @@ async def async_setup_entry(
                 coordinator,
                 SelectEntityDescription(
                     key="voltage_monitor",
+                    name="Voltage monitor mode",
                     translation_key="voltage_monitor",
                 ),
                 VOLTAGE_MONITOR_OPTIONS,

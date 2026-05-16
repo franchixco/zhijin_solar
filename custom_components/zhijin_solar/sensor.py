@@ -66,6 +66,7 @@ def _calc_soc(data: dict) -> float | None:
 STANDARD_SENSORS = (
     ZhiJinSensorEntityDescription(
         key="battery_voltage",
+        name="Battery voltage",
         translation_key="battery_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -75,6 +76,7 @@ STANDARD_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="charging_current",
+        name="Solar charging current",
         translation_key="charging_current",
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -84,6 +86,7 @@ STANDARD_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="discharge_current",
+        name="Load discharge current",
         translation_key="discharge_current",
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -93,6 +96,7 @@ STANDARD_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="temperature",
+        name="Temperature",
         translation_key="temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -102,6 +106,7 @@ STANDARD_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="total_power",
+        name="Total energy generated",
         translation_key="total_power",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -111,6 +116,7 @@ STANDARD_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="battery_soc",
+        name="Battery SOC",
         translation_key="battery_soc",
         device_class=SensorDeviceClass.BATTERY,
         state_class=SensorStateClass.MEASUREMENT,
@@ -123,6 +129,7 @@ STANDARD_SENSORS = (
 BINGWANG_SENSORS = (
     ZhiJinSensorEntityDescription(
         key="bw_pv_voltage",
+        name="PV voltage",
         translation_key="pv_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -132,6 +139,7 @@ BINGWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="bw_pv_current",
+        name="PV current",
         translation_key="pv_current",
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -141,6 +149,7 @@ BINGWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="bw_mains_voltage",
+        name="Mains voltage",
         translation_key="mains_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -150,6 +159,7 @@ BINGWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="bw_mains_frequency",
+        name="Mains frequency",
         translation_key="mains_frequency",
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
@@ -159,6 +169,7 @@ BINGWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="bw_realtime_power",
+        name="Real-time power",
         translation_key="realtime_power",
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
@@ -168,6 +179,7 @@ BINGWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="bw_accumulated_power",
+        name="Accumulated energy",
         translation_key="accumulated_power",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -177,6 +189,7 @@ BINGWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="bw_temperature",
+        name="Temperature",
         translation_key="temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -189,6 +202,7 @@ BINGWANG_SENSORS = (
 LIWANG_SENSORS = (
     ZhiJinSensorEntityDescription(
         key="lw_battery_voltage",
+        name="Battery voltage",
         translation_key="battery_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -198,6 +212,7 @@ LIWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="lw_dc_current",
+        name="DC current",
         translation_key="dc_current",
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
@@ -207,6 +222,7 @@ LIWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="lw_output_voltage",
+        name="Output voltage",
         translation_key="output_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -216,6 +232,7 @@ LIWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="lw_output_frequency",
+        name="Output frequency",
         translation_key="output_frequency",
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
@@ -225,6 +242,7 @@ LIWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="lw_realtime_power",
+        name="Real-time power",
         translation_key="realtime_power",
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
@@ -234,6 +252,7 @@ LIWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="lw_accumulated_power",
+        name="Accumulated energy",
         translation_key="accumulated_power",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
@@ -243,6 +262,7 @@ LIWANG_SENSORS = (
     ),
     ZhiJinSensorEntityDescription(
         key="lw_temperature",
+        name="Temperature",
         translation_key="temperature",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
@@ -255,6 +275,7 @@ LIWANG_SENSORS = (
 COMMON_SENSORS = (
     ZhiJinSensorEntityDescription(
         key="firmware_version",
+        name="Firmware version",
         translation_key="firmware_version",
         value_fn=lambda d: d.get("module_info", {}).get(
             "firmware_string",
