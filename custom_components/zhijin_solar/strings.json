@@ -27,8 +27,8 @@
   "entity": {
     "sensor": {
       "battery_voltage": { "name": "Battery voltage" },
-      "charging_current": { "name": "Charging current" },
-      "discharge_current": { "name": "Discharge current" },
+      "charging_current": { "name": "Solar charging current" },
+      "discharge_current": { "name": "Load discharge current" },
       "temperature": { "name": "Temperature" },
       "total_power": { "name": "Total energy generated" },
       "pv_voltage": { "name": "PV voltage" },
